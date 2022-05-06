@@ -12,11 +12,12 @@ public class Main {
     public static void server(int port, BooleanSearchEngine engine) {
         System.out.println("Запуск сервера с портом номером " + port);
 
-        try (ServerSocket serverSocket = new ServerSocket(port);
-             Socket clientSocket = serverSocket.accept();
-             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
             while (true) {
+                Socket clientSocket = serverSocket.accept();
+                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+                BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
                 String searchWord = in.readLine();
                 List<PageEntry> searchResult = engine.search(searchWord);
 
@@ -28,6 +29,9 @@ public class Main {
                         .collect(Collectors.joining());
 
                 out.println(response);
+                clientSocket.close();
+                out.close();
+                in.close();
             }
         } catch (IOException error) {
             error.printStackTrace();
